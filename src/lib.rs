@@ -1,241 +1,256 @@
-// use num_traits::sign::Signed;
-// use std::any::{Any, TypeId};
-// use std::cmp::{Eq, PartialEq, PartialOrd};
-// use std::ops::{Add, Div, Mul, Neg, Sub};
-
-// #[derive(Copy, Clone)]
-// pub enum Infinity {
-//     PosInfinity,
-//     NegInfinity,
-// }
-
-// impl Infinity {
-//     pub fn from_ref<T: Any>(other_type: &T) -> Option<&Infinity> {
-//         if TypeId::of::<Infinity>() == other_type.type_id() {
-//             unsafe { (other_type as *const T).cast::<Infinity>().as_ref() }
-//         } else {
-//             None
-//         }
-//     }
-// }
-
-// impl<T: Any> PartialEq<T> for Infinity {
-//     fn eq(&self, other: &T) -> bool {
-//         if other.type_id() == self.type_id() {
-//             let other_inf = Infinity::from_ref(other).unwrap();
-
-//             match (self, other_inf) {
-//                 (Infinity::PosInfinity, Infinity::NegInfinity)
-//                 | (Infinity::NegInfinity, Infinity::PosInfinity) => false,
-
-//                 (Infinity::PosInfinity, Infinity::PosInfinity)
-//                 | (Infinity::NegInfinity, Infinity::NegInfinity) => {
-//                     panic!("Two PosInfinity or two NegInfinity are not comparable")
-//                 }
-//             };
-//         }
-//         false
-//     }
-// }
-
-// impl Eq for Infinity {}
-
-// impl<T: Any> PartialOrd<T> for Infinity {
-//     fn partial_cmp(&self, _: &T) -> Option<std::cmp::Ordering> {
-//         todo!()
-//     }
-
-//     fn lt(&self, other: &T) -> bool {
-//         if other.type_id() == self.type_id() {
-//             let other_inf = Infinity::from_ref(other).unwrap();
-
-//             match (self, other_inf) {
-//                 (Infinity::PosInfinity, Infinity::NegInfinity) => false,
-//                 (Infinity::NegInfinity, Infinity::PosInfinity) => true,
-
-//                 (Infinity::PosInfinity, Infinity::PosInfinity)
-//                 | (Infinity::NegInfinity, Infinity::NegInfinity) => {
-//                     panic!("Two PosInfinity or two NegInfinity are not comparable")
-//                 }
-//             };
-//         }
-//         matches!(&self, Infinity::NegInfinity)
-//     }
-
-//     fn le(&self, other: &T) -> bool {
-//         self.lt(other)
-//     }
-
-//     fn gt(&self, other: &T) -> bool {
-//         !self.le(other)
-//     }
-
-//     fn ge(&self, other: &T) -> bool {
-//         self.gt(other)
-//     }
-// }
-
-// impl<T: Any> Add<T> for Infinity {
-//     type Output = Self;
-
-//     fn add(self, rhs: T) -> Self::Output {
-//         if self.type_id() == rhs.type_id() {
-//             let rhs_inf = Infinity::from_ref(&rhs).unwrap();
-
-//             return match (self, rhs_inf) {
-//                 (Infinity::PosInfinity, Infinity::NegInfinity)
-//                 | (Infinity::NegInfinity, Infinity::PosInfinity) => {
-//                     panic!("Can not add PosInfinity and NegInfinity with each other")
-//                 }
-
-//                 (Infinity::PosInfinity, Infinity::PosInfinity) => Infinity::PosInfinity,
-//                 (Infinity::NegInfinity, Infinity::NegInfinity) => Infinity::NegInfinity,
-//             };
-//         }
-
-//         self.clone()
-//     }
-// }
-
-// impl<T: Any> Sub<T> for Infinity {
-//     type Output = Self;
-
-//     fn sub(self, rhs: T) -> Self::Output {
-//         if self.type_id() == rhs.type_id() {
-//             let rhs_inf = Infinity::from_ref(&rhs).unwrap();
-
-//             return match (self, rhs_inf) {
-//                 (Infinity::PosInfinity, Infinity::NegInfinity) => Infinity::PosInfinity,
-//                 (Infinity::NegInfinity, Infinity::PosInfinity) => Infinity::NegInfinity,
-
-//                 (Infinity::PosInfinity, Infinity::PosInfinity)
-//                 | (Infinity::NegInfinity, Infinity::NegInfinity) => panic!(
-//                     "Can not subtract two PosInfinities or two NegInfinities from each  other"
-//                 ),
-//             };
-//         }
-
-//         self.clone()
-//     }
-// }
-
-// impl<T: Any + Signed> Mul<T> for Infinity {
-//     type Output = Self;
-
-//     fn mul(self, rhs: T) -> Self::Output {
-//         if rhs.is_negative() {
-//             -self.clone()
-//         } else if rhs.is_positive() {
-//             self.clone()
-//         } else {
-//             panic!("Multiplication of zero and Infinity is not supported")
-//         }
-//     }
-// }
-
-// impl<T: Any + Signed> Div<T> for Infinity {
-//     type Output = Self;
-
-//     fn div(self, rhs: T) -> Self::Output {
-//         if rhs.is_zero() {
-//             panic!("Division by zero")
-//         }
-
-//         self.mul(rhs)
-//     }
-// }
-
-// impl Neg for Infinity {
-//     type Output = Self;
-
-//     fn neg(self) -> Self::Output {
-//         match self {
-//             Infinity::PosInfinity => Infinity::NegInfinity,
-//             Infinity::NegInfinity => Infinity::PosInfinity,
-//         }
-//     }
-// }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn simple_test() {
-//         let pos_inf = Infinity::PosInfinity;
-//         let neg_inf = Infinity::NegInfinity;
-//         assert!(pos_inf > 0);
-//         assert!(neg_inf < 0);
-//         assert!(neg_inf < pos_inf);
-//         assert!(pos_inf > neg_inf);
-//         assert!(matches!(pos_inf + 1, Infinity::PosInfinity));
-//         assert!(matches!(pos_inf * -10, Infinity::NegInfinity));
-//         assert!(matches!(neg_inf * -10, Infinity::PosInfinity));
-//         assert!(matches!(pos_inf / 10, Infinity::PosInfinity));
-//         assert!(matches!(pos_inf / -10, Infinity::NegInfinity));
-//     }
-// }
-
-
-pub enum Beyond<T> {
+#[derive(Debug, Copy, Clone)]
+pub enum Magnitude<T> {
     Finite(T),
     PosInfinit,
     NegInfinit,
 }
 
 // implement comparison operators for Beyond
-use std::cmp::{PartialEq, Eq, PartialOrd, Ord, Ordering};
+use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 
-impl<T: PartialEq> PartialEq for Beyond<T> {
+impl<T: PartialEq> PartialEq for Magnitude<T> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Beyond::Finite(_), Beyond::PosInfinit)
-            | (Beyond::Finite(_), Beyond::NegInfinit)
-            | (Beyond::PosInfinit, Beyond::Finite(_))
-            | (Beyond::PosInfinit, Beyond::NegInfinit)
-            | (Beyond::NegInfinit, Beyond::Finite(_))
-            | (Beyond::NegInfinit, Beyond::PosInfinit) => false,
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => value1.eq(value2),
 
-            (Beyond::Finite(value1), Beyond::Finite(value2)) => value1.eq(value2),
-            
-            (Beyond::PosInfinit, Beyond::PosInfinit) => {
+            (Magnitude::Finite(_), Magnitude::PosInfinit)
+            | (Magnitude::Finite(_), Magnitude::NegInfinit)
+            | (Magnitude::PosInfinit, Magnitude::Finite(_))
+            | (Magnitude::PosInfinit, Magnitude::NegInfinit)
+            | (Magnitude::NegInfinit, Magnitude::Finite(_))
+            | (Magnitude::NegInfinit, Magnitude::PosInfinit) => false,
+
+            (Magnitude::PosInfinit, Magnitude::PosInfinit) => {
                 panic!("Can not compare two positive infinities")
             }
-            
-            (Beyond::NegInfinit, Beyond::NegInfinit) => {
+
+            (Magnitude::NegInfinit, Magnitude::NegInfinit) => {
                 panic!("Can not compare two negative infinities")
             }
         }
     }
 }
 
-impl<T: PartialEq> Eq for Beyond<T> {}
+impl<T: PartialEq> Eq for Magnitude<T> {}
 
-
-impl<T: PartialOrd> PartialOrd for Beyond<T> {
+impl<T: PartialOrd> PartialOrd for Magnitude<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         match (self, other) {
-            (Beyond::Finite(value1), Beyond::Finite(value2)) => value1.partial_cmp(value2),
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => value1.partial_cmp(value2),
 
-            (Beyond::Finite(_), Beyond::NegInfinit) => Some(Ordering::Greater),
-            (Beyond::PosInfinit, Beyond::Finite(_)) => Some(Ordering::Greater),
-            (Beyond::PosInfinit, Beyond::NegInfinit) => Some(Ordering::Greater),
+            (Magnitude::Finite(_), Magnitude::NegInfinit) => Some(Ordering::Greater),
+            (Magnitude::PosInfinit, Magnitude::Finite(_)) => Some(Ordering::Greater),
+            (Magnitude::PosInfinit, Magnitude::NegInfinit) => Some(Ordering::Greater),
 
-            (Beyond::Finite(_), Beyond::PosInfinit) => Some(Ordering::Less),
-            (Beyond::NegInfinit, Beyond::Finite(_)) => Some(Ordering::Less),
-            (Beyond::NegInfinit, Beyond::PosInfinit) => Some(Ordering::Less),
+            (Magnitude::Finite(_), Magnitude::PosInfinit) => Some(Ordering::Less),
+            (Magnitude::NegInfinit, Magnitude::Finite(_)) => Some(Ordering::Less),
+            (Magnitude::NegInfinit, Magnitude::PosInfinit) => Some(Ordering::Less),
 
-            (Beyond::PosInfinit, Beyond::PosInfinit) => panic!("Can not compare two positive infinities"),
-            (Beyond::NegInfinit, Beyond::NegInfinit) => panic!("Can not compare two negative infinities"),
+            (Magnitude::PosInfinit, Magnitude::PosInfinit) => {
+                panic!("Can not compare two positive infinities")
+            }
+            (Magnitude::NegInfinit, Magnitude::NegInfinit) => {
+                panic!("Can not compare two negative infinities")
+            }
         }
     }
 }
 
-impl<T: Ord> Ord for Beyond<T> {
+impl<T: Ord> Ord for Magnitude<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }
 }
 
-
 // implement arithmetic operators for Beyond
+use std::ops::{Add, Div, Mul, Neg, Sub};
+
+impl<T: Add<Output = T>> Add for Magnitude<T> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => {
+                Magnitude::Finite(value1 + value2)
+            }
+
+            (Magnitude::Finite(_), Magnitude::PosInfinit) => Magnitude::PosInfinit,
+            (Magnitude::PosInfinit, Magnitude::Finite(_)) => Magnitude::PosInfinit,
+            (Magnitude::PosInfinit, Magnitude::PosInfinit) => Magnitude::PosInfinit,
+
+            (Magnitude::Finite(_), Magnitude::NegInfinit) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::Finite(_)) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::NegInfinit) => Magnitude::NegInfinit,
+
+            (Magnitude::PosInfinit, Magnitude::NegInfinit)
+            | (Magnitude::NegInfinit, Magnitude::PosInfinit) => {
+                panic!("Can not add PosInfinit and NegInfinit")
+            }
+        }
+    }
+}
+
+impl<T: Sub<Output = T>> Sub for Magnitude<T> {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => {
+                Magnitude::Finite(value1 - value2)
+            }
+
+            (Magnitude::Finite(_), Magnitude::NegInfinit) => Magnitude::PosInfinit,
+            (Magnitude::PosInfinit, Magnitude::Finite(_)) => Magnitude::PosInfinit,
+            (Magnitude::PosInfinit, Magnitude::NegInfinit) => Magnitude::PosInfinit,
+
+            (Magnitude::Finite(_), Magnitude::PosInfinit) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::Finite(_)) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::PosInfinit) => Magnitude::NegInfinit,
+
+            (Magnitude::PosInfinit, Magnitude::PosInfinit) => {
+                panic!("Can not subtract two PosInfinities")
+            }
+            (Magnitude::NegInfinit, Magnitude::NegInfinit) => {
+                panic!("Can not subtract two NegInfinities")
+            }
+        }
+    }
+}
+
+use num_traits::identities::Zero;
+impl<T: Mul<Output = T> + PartialOrd + Zero> Mul for Magnitude<T> {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => {
+                Magnitude::Finite(value1 * value2)
+            }
+
+            (Magnitude::PosInfinit, Magnitude::Finite(value))
+            | (Magnitude::Finite(value), Magnitude::PosInfinit) => {
+                if value < T::zero() {
+                    Magnitude::NegInfinit
+                } else if value > T::zero() {
+                    Magnitude::PosInfinit
+                } else {
+                    panic!("Can not multiply zero by Infinity");
+                }
+            }
+
+            (Magnitude::NegInfinit, Magnitude::Finite(value))
+            | (Magnitude::Finite(value), Magnitude::NegInfinit) => {
+                if value < T::zero() {
+                    Magnitude::PosInfinit
+                } else if value > T::zero() {
+                    Magnitude::NegInfinit
+                } else {
+                    panic!("Can not multiply zero by Infinity");
+                }
+            }
+
+            (Magnitude::PosInfinit, Magnitude::PosInfinit) => Magnitude::PosInfinit,
+            (Magnitude::PosInfinit, Magnitude::NegInfinit) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::PosInfinit) => Magnitude::NegInfinit,
+            (Magnitude::NegInfinit, Magnitude::NegInfinit) => Magnitude::PosInfinit,
+        }
+    }
+}
+
+impl<T: Div<Output = T> + PartialOrd + Zero> Div for Magnitude<T> {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        match (self, rhs) {
+            (Magnitude::Finite(value1), Magnitude::Finite(value2)) => {
+                Magnitude::Finite(value1 / value2)
+            }
+
+            (Magnitude::Finite(value), Magnitude::PosInfinit) => {
+                if value < T::zero() {
+                    Magnitude::NegInfinit
+                } else if value > T::zero() {
+                    Magnitude::PosInfinit
+                } else {
+                    Magnitude::Finite(T::zero())
+                }
+            }
+
+            (Magnitude::PosInfinit, Magnitude::Finite(value)) => {
+                if value < T::zero() {
+                    Magnitude::NegInfinit
+                } else if value > T::zero() {
+                    Magnitude::PosInfinit
+                } else {
+                    panic!("Division by zero");
+                }
+            }
+
+            (Magnitude::Finite(value), Magnitude::NegInfinit) => {
+                if value < T::zero() {
+                    Magnitude::PosInfinit
+                } else if value > T::zero() {
+                    Magnitude::NegInfinit
+                } else {
+                    Magnitude::Finite(T::zero())
+                }
+            }
+
+            (Magnitude::NegInfinit, Magnitude::Finite(value)) => {
+                if value < T::zero() {
+                    Magnitude::PosInfinit
+                } else if value > T::zero() {
+                    Magnitude::NegInfinit
+                } else {
+                    panic!("Division by zero");
+                }
+            }
+
+            (Magnitude::PosInfinit, Magnitude::PosInfinit)
+            | (Magnitude::PosInfinit, Magnitude::NegInfinit)
+            | (Magnitude::NegInfinit, Magnitude::PosInfinit)
+            | (Magnitude::NegInfinit, Magnitude::NegInfinit) => {
+                panic!("Can not divide two infinities")
+            }
+        }
+    }
+}
+
+impl<T: Neg<Output = T>> Neg for Magnitude<T> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        match self {
+            Magnitude::Finite(value) => Magnitude::Finite(-value),
+            Magnitude::PosInfinit => Magnitude::NegInfinit,
+            Magnitude::NegInfinit => Magnitude::PosInfinit,
+        }
+    }
+}
+
+// implement auxilary operators
+use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
+
+impl<T: Add<Output = T> + Clone> AddAssign for Magnitude<T> {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = self.clone() + rhs;
+    }
+}
+
+impl<T: Sub<Output = T> + Clone> SubAssign for Magnitude<T> {
+    fn sub_assign(&mut self, rhs: Self) {
+        *self = self.clone() - rhs;
+    }
+}
+
+impl<T: Mul<Output = T> + Clone + PartialOrd + Zero> MulAssign for Magnitude<T> {
+    fn mul_assign(&mut self, rhs: Self) {
+        *self = self.clone() * rhs;
+    }
+}
+
+impl<T: Div<Output = T> + Clone + PartialOrd + Zero> DivAssign for Magnitude<T> {
+    fn div_assign(&mut self, rhs: Self) {
+        *self = self.clone() / rhs;
+    }
+}
