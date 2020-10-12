@@ -58,7 +58,17 @@ that require infinite values in order to be written elegantly.
 # Relationship of Magnitude with `f64` and `f32` infinities
 Magnitude as of 0.2.0 treat `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` as infinites:
 ```rust
+use magnitude::Magnitude;
 
+let pos_inf: Magnitude<f64> = f64::INFINITY.into();
+let neg_inf: Magnitude<f64> = f64::NEG_INFINITY.into();
+assert!(pos_inf.is_pos_infinite());
+assert!(neg_inf.is_neg_infinite());
+
+let pos_inf: Magnitude<f32> = f32::INFINITY.into();
+let neg_inf: Magnitude<f32> = f32::NEG_INFINITY.into();
+assert!(pos_inf.is_pos_infinite());
+assert!(neg_inf.is_neg_infinite());
 ```
 
 # Release
