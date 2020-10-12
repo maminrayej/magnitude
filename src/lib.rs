@@ -1,3 +1,63 @@
+/// Represent magnitude of values.
+///
+/// Type `Magnitude` can be either `Finite` or infinite(which itself can be `PosInfinite` or `NegInfinite`). \
+///
+/// This enum is useful when you need to work with algorithms like
+/// [Dijkstra's Shortest Path](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Pseudocode) or
+/// [Floyd–Warshall algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm#Algorithm)
+/// that require infinite values in order to be written elegantly. \
+///
+/// One simple example can be finding the max value within a vector:
+/// ```rust
+/// use magnitude::Magnitude;
+///
+/// fn find_max(vec: &Vec<Magnitude<i32>>) -> Magnitude<i32> {
+///     let mut max = Magnitude::NegInfinite;
+///     for val in vec {
+///         if *val > max {
+///             max = *val;
+///         }
+///     }
+///
+///     max
+/// }
+///
+/// let vec: Vec<Magnitude<i32>> = vec![2.into(), 3.into(), 6.into(), (-10).into()];
+/// assert_eq!(find_max(&vec), 6.into());
+/// ````
+/// As you can see from example above, you can do all **valid** comparison and arithmetic operations on magnitudes. \
+/// Invalid operations are listed below which means any other operation is valid.
+///
+/// # Invalid operations
+/// * Comparison: \
+///    - two `PosInfinite`
+///    - two `NegInfinite`
+/// * Arithmetic: \
+///     - Add:
+///         - `PosInfinite` + `NegInfinite`
+///     - Sub:
+///         - `PosInfinit` - `PosInfinit`
+///         - `NegInfinit` - `NegInfinit`
+///     - Mul:
+///         - zero * `PosInfinite`
+///         - zero * `NegInfinite`
+///     - Div:
+///         - non-zero / `PosInfinite`
+///         - non-zero / `NegInfinite`
+///         - `PosInfinite` / zero
+///         - `NegInfinite` / zero
+///         - `PosInfinite` / `PosInfinite`
+///         - `PosInfinite` / `NegInfinite`
+///         - `NegInfinite` / `PosInfinite`
+///         - `NegInfinite` / `NegInfinite`
+///
+/// # Examples
+/// Convert a vector of numbers into a vector of magnitudes
+/// ```rust
+/// use magnitude::Magnitude;
+///
+/// let _ : Vec<Magnitude<i32>> = vec![1, 2, 3, 4].iter().map(|value| Magnitude::Finite(*value)).collect();
+/// ```
 #[derive(Debug, Copy, Clone)]
 pub enum Magnitude<T> {
     /// A finite value
@@ -11,18 +71,22 @@ pub enum Magnitude<T> {
 }
 
 impl<T> Magnitude<T> {
+    /// Returns `true` if magnitude is `PosInfinite`, `false` otherwise
     pub fn is_pos_infinite(&self) -> bool {
         matches!(self, Magnitude::PosInfinite)
     }
 
+    /// Returns `true` if magnitude is `NegInfinite`, `false` otherwise
     pub fn is_neg_infinite(&self) -> bool {
         matches!(self, Magnitude::NegInfinite)
     }
 
+    /// Returns `true` if magnitude is `Finite`, `false` otherwise
     pub fn is_finite(&self) -> bool {
         !(self.is_pos_infinite() && self.is_neg_infinite())
     }
 
+    /// Returns `Some(&T)` if magnitude is `Finite`, `None` otherwise
     pub fn as_ref(&self) -> Option<&T> {
         match self {
             Magnitude::Finite(ref value) => Some(value),
@@ -30,6 +94,7 @@ impl<T> Magnitude<T> {
         }
     }
 
+    /// Returns `Some(&T)` if magnitude is `Finite`, `None` otherwise
     pub fn as_ref_mut(&mut self) -> Option<&mut T> {
         match self {
             Magnitude::Finite(ref mut value) => Some(value),
@@ -40,10 +105,21 @@ impl<T> Magnitude<T> {
 
 // Implement From trait for more convenient use of Magnitude
 use std::convert::From;
-
 impl<T> From<T> for Magnitude<T> {
     fn from(value: T) -> Self {
         Magnitude::Finite(value)
+    }
+}
+
+// Implement Display trait for better printing
+use std::fmt::Display;
+impl<T: Display> Display for Magnitude<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Magnitude::Finite(value) => write!(f, "{}", value),
+            Magnitude::PosInfinite => write!(f, "PosInfinite"),
+            Magnitude::NegInfinite => write!(f, "NegInfinite"),
+        }
     }
 }
 
@@ -583,5 +659,12 @@ mod tests {
         for i in 0..4 {
             assert!(*mags[i].as_ref().unwrap() == i as i32);
         }
+    }
+
+    #[test]
+    fn display_magnitude() {
+        let vec: Vec<Magnitude<i32>> = vec![1.into(), 2.into(), Magnitude::PosInfinite, Magnitude::NegInfinite];
+
+        println!("{:?}", vec);
     }
 }
