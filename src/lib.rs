@@ -7,7 +7,7 @@
 /// [Floyd–Warshall algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm#Algorithm)
 /// that require infinite values in order to be written elegantly. \
 ///
-/// One simple example can be finding the max value within a vector:
+/// One simple example can be finding the max value in a vector:
 /// ```rust
 /// use magnitude::Magnitude;
 ///
@@ -25,7 +25,7 @@
 /// let vec: Vec<Magnitude<i32>> = vec![2.into(), 3.into(), 6.into(), (-10).into()];
 /// assert_eq!(find_max(&vec), 6.into());
 /// ````
-/// As you can see from example above, you can do all **valid** comparison and arithmetic operations on magnitudes. \
+/// You can do all **valid** comparison(==, !=, >, <, >=, <=) and arithmetic(+, -, *, /, +=, -=, *=, /=) operations on magnitudes. \
 /// Invalid operations are listed below which means any other operation is valid.
 ///
 /// # Invalid operations
@@ -108,18 +108,6 @@ use std::convert::From;
 impl<T> From<T> for Magnitude<T> {
     fn from(value: T) -> Self {
         Magnitude::Finite(value)
-    }
-}
-
-// Implement Display trait for better printing
-use std::fmt::Display;
-impl<T: Display> Display for Magnitude<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Magnitude::Finite(value) => write!(f, "{}", value),
-            Magnitude::PosInfinite => write!(f, "PosInfinite"),
-            Magnitude::NegInfinite => write!(f, "NegInfinite"),
-        }
     }
 }
 
@@ -659,12 +647,5 @@ mod tests {
         for i in 0..4 {
             assert!(*mags[i].as_ref().unwrap() == i as i32);
         }
-    }
-
-    #[test]
-    fn display_magnitude() {
-        let vec: Vec<Magnitude<i32>> = vec![1.into(), 2.into(), Magnitude::PosInfinite, Magnitude::NegInfinite];
-
-        println!("{:?}", vec);
     }
 }
