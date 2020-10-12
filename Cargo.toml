@@ -1,10 +1,10 @@
 [package]
 name = "magnitude"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["m.amin.rayej <m.amin.rayej@gmail.com>"]
 edition = "2018"
 description = "Magnitude - To infinity and beyond!"
-license-file = "LICENSE"
+license = "MIT"
 documentation = "https://docs.rs/magnitude"
 homepage = "https://github.com/maminrayej/magnitude"
 repository = "https://github.com/maminrayej/magnitude"
