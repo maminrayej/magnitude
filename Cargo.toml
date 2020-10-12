@@ -3,6 +3,11 @@ name = "magnitude"
 version = "0.1.0"
 authors = ["m.amin.rayej <m.amin.rayej@gmail.com>"]
 edition = "2018"
+description = "Magnitude - To infinity and beyond!"
+license-file = "LICENSE"
+documentation = "https://docs.rs/magnitude"
+homepage = "https://github.com/maminrayej/magnitude"
+repository = "https://github.com/maminrayej/magnitude"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
