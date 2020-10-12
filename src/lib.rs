@@ -1,3 +1,5 @@
+mod util;
+
 /// Represent magnitude of values.
 ///
 /// Type `Magnitude` can be either `Finite` or infinite(which itself can be `PosInfinite` or `NegInfinite`). \
@@ -24,7 +26,7 @@
 ///
 /// let vec: Vec<Magnitude<i32>> = vec![2.into(), 3.into(), 6.into(), (-10).into()];
 /// assert_eq!(find_max(&vec), 6.into());
-/// ````
+/// ```
 /// You can do all **valid** comparison(==, !=, >, <, >=, <=) and arithmetic(+, -, *, /, +=, -=, *=, /=) operations on magnitudes. \
 /// Invalid operations are listed below which means any other operation is valid.
 ///
@@ -36,8 +38,8 @@
 ///     - Add:
 ///         - `PosInfinite` + `NegInfinite`
 ///     - Sub:
-///         - `PosInfinit` - `PosInfinit`
-///         - `NegInfinit` - `NegInfinit`
+///         - `PosInfinite` - `PosInfinite`
+///         - `NegInfinite` - `NegInfinite`
 ///     - Mul:
 ///         - zero * `PosInfinite`
 ///         - zero * `NegInfinite`
@@ -51,6 +53,21 @@
 ///         - `NegInfinite` / `PosInfinite`
 ///         - `NegInfinite` / `NegInfinite`
 ///
+/// # Relationship of Magnitude with `f64` and `f32` infinities 
+/// Magnitude as of version 0.2.0 treat `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` as infinites:
+/// ```rust
+/// use magnitude::Magnitude;
+///
+/// let pos_inf: Magnitude<f64> = f64::INFINITY.into();
+/// let neg_inf: Magnitude<f64> = f64::NEG_INFINITY.into();
+/// assert!(pos_inf.is_pos_infinite());
+/// assert!(neg_inf.is_neg_infinite());
+///
+/// let pos_inf: Magnitude<f32> = f32::INFINITY.into();
+/// let neg_inf: Magnitude<f32> = f32::NEG_INFINITY.into();
+/// assert!(pos_inf.is_pos_infinite());
+/// assert!(neg_inf.is_neg_infinite());
+/// ```
 /// # Examples
 /// Convert a vector of numbers into a vector of magnitudes
 /// ```rust
@@ -104,10 +121,33 @@ impl<T> Magnitude<T> {
 }
 
 // Implement From trait for more convenient use of Magnitude
+use std::any::Any;
 use std::convert::From;
-impl<T> From<T> for Magnitude<T> {
+impl<T: Any> From<T> for Magnitude<T> {
     fn from(value: T) -> Self {
-        Magnitude::Finite(value)
+        if let Some(value_f64) = util::downcast_ref::<T, f64>(&value) {
+            if value_f64.is_infinite() {
+                if value_f64.is_sign_negative() {
+                    Magnitude::NegInfinite
+                } else {
+                    Magnitude::PosInfinite
+                }
+            } else {
+                Magnitude::Finite(value)
+            }
+        } else if let Some(value_f32) = util::downcast_ref::<T, f32>(&value) {
+            if value_f32.is_infinite() {
+                if value_f32.is_sign_negative() {
+                    Magnitude::NegInfinite
+                } else {
+                    Magnitude::PosInfinite
+                }
+            } else {
+                Magnitude::Finite(value)
+            }
+        } else {
+            Magnitude::Finite(value)
+        }
     }
 }
 
@@ -647,5 +687,23 @@ mod tests {
         for i in 0..4 {
             assert!(*mags[i].as_ref().unwrap() == i as i32);
         }
+    }
+
+    #[test]
+    fn f64_infinity() {
+        let pos_inf: Magnitude<f64> = f64::INFINITY.into();
+        let neg_inf: Magnitude<f64> = f64::NEG_INFINITY.into();
+
+        assert!(pos_inf.is_pos_infinite());
+        assert!(neg_inf.is_neg_infinite());
+    }
+
+    #[test]
+    fn f32_infinity() {
+        let pos_inf: Magnitude<f32> = f32::INFINITY.into();
+        let neg_inf: Magnitude<f32> = f32::NEG_INFINITY.into();
+
+        assert!(pos_inf.is_pos_infinite());
+        assert!(neg_inf.is_neg_infinite());
     }
 }

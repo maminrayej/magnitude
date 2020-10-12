@@ -40,8 +40,8 @@ that require infinite values in order to be written elegantly.
      - Add:
          - `PosInfinite` + `NegInfinite`
      - Sub:
-         - `PosInfinit` - `PosInfinit`
-         - `NegInfinit` - `NegInfinit`
+         - `PosInfinite` - `PosInfinite`
+         - `NegInfinite` - `NegInfinite`
      - Mul:
          - zero * `PosInfinite`
          - zero * `NegInfinite`
@@ -54,3 +54,13 @@ that require infinite values in order to be written elegantly.
          - `PosInfinite` / `NegInfinite`
          - `NegInfinite` / `PosInfinite`
          - `NegInfinite` / `NegInfinite`
+
+# Relationship of Magnitude with `f64` and `f32` infinities
+Magnitude as of 0.2.0 treat `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` as infinites:
+```rust
+
+```
+
+# Release
+* 0.2.0: handle `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` properly \
+special thanks to [@niklasmohrin](https://github.com/niklasmohrin) and [@smarnach](https://github.com/smarnach)
