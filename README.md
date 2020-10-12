@@ -4,7 +4,8 @@
 
 Magnitude - To infinity and beyond!
 ==========================================================
-
+[![Crate](https://img.shields.io/crates/v/magnitude.svg)](https://crates.io/crates/magnitude)
+[![API](https://docs.rs/magnitude/badge.svg)](https://docs.rs/magnitude) \
 This crate is useful when you need to work with algorithms like
 [Dijkstra's Shortest Path](https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Pseudocode) or
 [Floyd–Warshall algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm#Algorithm)
