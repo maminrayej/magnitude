@@ -72,5 +72,24 @@ assert!(neg_inf.is_neg_infinite());
 ```
 
 # Release
+* 0.3.0:
+    * add `from_vec` to build a vector of `Magnitude` from a vector of values:
+        ```rust
+        use magnitude::Magnitude;
+
+        let magnitude_vec = Magnitude::from_vec(&vec![1,2,3]);
+        
+        assert_eq!(magnitude_vec[0], 1.into());
+        assert_eq!(magnitude_vec[1], 2.into());
+        assert_eq!(magnitude_vec[2], 3.into());
+        ```
+    * add `unwrap` for easier access to value inside `Finite`:
+        ```rust
+        use magnitude::Magnitude;
+
+        let one: Magnitude<i32> = 1.into();
+        
+        assert_eq!(one.unwrap(), 1);
+        ```
 * 0.2.0: handle `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` properly \
 special thanks to [@niklasmohrin](https://github.com/niklasmohrin) and [@smarnach](https://github.com/smarnach)
