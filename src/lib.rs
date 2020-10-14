@@ -123,6 +123,16 @@ impl<T> Magnitude<T> {
         }
     }
 
+    /// Consumes the `Magnitude` and returns the value inside `Finite`.
+    /// Panics if `Magnitude` contains an infinity
+    ///
+    /// Example
+    /// ```rust
+    /// use magnitude::Magnitude;
+    /// let one: Magnitude<i32> = 1.into();
+    ///
+    /// assert_eq!(one.unwrap(), 1);
+    /// ```
     pub fn unwrap(self) -> T {
         match self {
             Magnitude::Finite(value) => value,
