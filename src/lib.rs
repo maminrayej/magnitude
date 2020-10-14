@@ -53,7 +53,7 @@ mod util;
 ///         - `NegInfinite` / `PosInfinite`
 ///         - `NegInfinite` / `NegInfinite`
 ///
-/// # Relationship of Magnitude with `f64` and `f32` infinities 
+/// # Relationship of Magnitude with `f64` and `f32` infinities
 /// Magnitude as of version 0.2.0 treat `f64::INFINITY`, `f64::NEG_INFINITY`, `f32::INFINITY`, `f32::NEG_INFINITY` as infinites:
 /// ```rust
 /// use magnitude::Magnitude;
@@ -73,7 +73,11 @@ mod util;
 /// ```rust
 /// use magnitude::Magnitude;
 ///
-/// let _ : Vec<Magnitude<i32>> = vec![1, 2, 3, 4].iter().map(|value| Magnitude::Finite(*value)).collect();
+/// let magnitude_vec = Magnitude::from_vec(&vec![1,2,3]);
+///
+/// assert_eq!(magnitude_vec[0], 1.into());
+/// assert_eq!(magnitude_vec[1], 2.into());
+/// assert_eq!(magnitude_vec[2], 3.into());
 /// ```
 #[derive(Debug, Copy, Clone)]
 pub enum Magnitude<T> {
@@ -111,7 +115,7 @@ impl<T> Magnitude<T> {
         }
     }
 
-    /// Returns `Some(&T)` if magnitude is `Finite`, `None` otherwise
+    /// Returns `Some(&mut T)` if magnitude is `Finite`, `None` otherwise
     pub fn as_ref_mut(&mut self) -> Option<&mut T> {
         match self {
             Magnitude::Finite(ref mut value) => Some(value),
@@ -120,11 +124,9 @@ impl<T> Magnitude<T> {
     }
 }
 
-// Implement From trait for more convenient use of Magnitude
 use std::any::Any;
-use std::convert::From;
-impl<T: Any> From<T> for Magnitude<T> {
-    fn from(value: T) -> Self {
+impl<T: Any> Magnitude<T> {
+    fn from_value(value: T) -> Self {
         if let Some(value_f64) = util::downcast_ref::<T, f64>(&value) {
             if value_f64.is_infinite() {
                 if value_f64.is_sign_negative() {
@@ -148,6 +150,34 @@ impl<T: Any> From<T> for Magnitude<T> {
         } else {
             Magnitude::Finite(value)
         }
+    }
+}
+
+impl<T: Any + Copy + Clone> Magnitude<T> {
+    /// Converts a vector of value into a vector of `Magnitude`
+    ///
+    /// # Example
+    /// ```rust
+    /// use magnitude::Magnitude;
+    ///
+    /// let magnitude_vec = Magnitude::from_vec(&vec![1,2,3]);
+    ///
+    /// assert_eq!(magnitude_vec[0], 1.into());
+    /// assert_eq!(magnitude_vec[1], 2.into());
+    /// assert_eq!(magnitude_vec[2], 3.into());
+    /// ```
+    pub fn from_vec(vec: &Vec<T>) -> Vec<Magnitude<T>> {
+        vec.iter()
+            .map(|value| Magnitude::from_value(*value))
+            .collect()
+    }
+}
+
+// Implement From trait for more convenient use of Magnitude
+use std::convert::From;
+impl<T: Any> From<T> for Magnitude<T> {
+    fn from(value: T) -> Self {
+        Magnitude::from_value(value)
     }
 }
 
@@ -705,5 +735,26 @@ mod tests {
 
         assert!(pos_inf.is_pos_infinite());
         assert!(neg_inf.is_neg_infinite());
+    }
+
+    #[test]
+    fn from_vec() {
+        let magnitude_vec = Magnitude::from_vec(&vec![1, 2, 3]);
+
+        assert_eq!(*magnitude_vec[0].as_ref().unwrap(), 1);
+        assert_eq!(*magnitude_vec[1].as_ref().unwrap(), 2);
+        assert_eq!(*magnitude_vec[2].as_ref().unwrap(), 3);
+    }
+
+    #[test]
+    fn from_vec_with_inf() {
+        let magnitude_vec =
+            Magnitude::from_vec(&vec![1.0, 2.5, 3.3, f64::INFINITY, f64::NEG_INFINITY]);
+
+        assert_eq!(*magnitude_vec[0].as_ref().unwrap(), 1.0);
+        assert_eq!(*magnitude_vec[1].as_ref().unwrap(), 2.5);
+        assert_eq!(*magnitude_vec[2].as_ref().unwrap(), 3.3);
+        assert!(magnitude_vec[3].is_pos_infinite());
+        assert!(magnitude_vec[4].is_neg_infinite());
     }
 }
