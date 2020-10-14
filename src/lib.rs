@@ -122,6 +122,13 @@ impl<T> Magnitude<T> {
             _ => None,
         }
     }
+
+    pub fn unwrap(self) -> T {
+        match self {
+            Magnitude::Finite(value) => value,
+            _ => panic!("Can not unwrap an infinity")
+        }
+    }
 }
 
 use std::any::Any;
@@ -756,5 +763,20 @@ mod tests {
         assert_eq!(*magnitude_vec[2].as_ref().unwrap(), 3.3);
         assert!(magnitude_vec[3].is_pos_infinite());
         assert!(magnitude_vec[4].is_neg_infinite());
+    }
+
+    #[test]
+    fn unwrap_finite() {
+        let one: Magnitude<i32> = 1.into();
+
+        assert_eq!(one.unwrap(), 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Can not unwrap an infinity")]
+    fn unwrap_an_infinity() {
+        let neg_inf: Magnitude<f64> = f64::NEG_INFINITY.into();
+
+        let _ = neg_inf.unwrap();
     }
 }
