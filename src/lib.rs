@@ -104,7 +104,7 @@ impl<T> Magnitude<T> {
 
     /// Returns `true` if magnitude is `Finite`, `false` otherwise
     pub fn is_finite(&self) -> bool {
-        !(self.is_pos_infinite() && self.is_neg_infinite())
+        !self.is_pos_infinite() && !self.is_neg_infinite()
     }
 
     /// Returns `Some(&T)` if magnitude is `Finite`, `None` otherwise
@@ -788,5 +788,36 @@ mod tests {
         let neg_inf: Magnitude<f64> = f64::NEG_INFINITY.into();
 
         let _ = neg_inf.unwrap();
+    }
+
+    #[test]
+    fn is_finite() {
+        let one: Magnitude<usize> = 1.into();
+        let pos_inf : Magnitude<usize> = Magnitude::PosInfinite;
+
+        assert!(one.is_finite());
+        assert!(!pos_inf.is_finite());
+    }
+
+    #[test]
+    fn is_pos_infinite() {
+        let one: Magnitude<usize> = 1.into();
+        let pos_inf : Magnitude<usize> = Magnitude::PosInfinite;
+        let neg_inf : Magnitude<usize> = Magnitude::NegInfinite;
+
+        assert!(!one.is_pos_infinite());
+        assert!(!neg_inf.is_pos_infinite());
+        assert!(pos_inf.is_pos_infinite());
+    }
+
+    #[test]
+    fn is_neg_infinite() {
+        let one: Magnitude<usize> = 1.into();
+        let pos_inf : Magnitude<usize> = Magnitude::PosInfinite;
+        let neg_inf : Magnitude<usize> = Magnitude::NegInfinite;
+
+        assert!(!one.is_neg_infinite());
+        assert!(!pos_inf.is_neg_infinite());
+        assert!(neg_inf.is_neg_infinite());
     }
 }
