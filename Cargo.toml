@@ -1,6 +1,6 @@
 [package]
 name = "magnitude"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["m.amin.rayej <m.amin.rayej@gmail.com>"]
 edition = "2018"
 description = "Magnitude - To infinity and beyond!"
