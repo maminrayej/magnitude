@@ -104,7 +104,7 @@ impl<T> Magnitude<T> {
 
     /// Returns `true` if magnitude is `Finite`, `false` otherwise
     pub fn is_finite(&self) -> bool {
-        !self.is_pos_infinite() && !self.is_neg_infinite()
+        matches!(self, Magnitude::Finite(_))
     }
 
     /// Returns `Some(&T)` if magnitude is `Finite`, `None` otherwise
@@ -170,7 +170,7 @@ impl<T: Any> Magnitude<T> {
     }
 }
 
-impl<T: Any + Copy + Clone> Magnitude<T> {
+impl<T: Any + Copy> Magnitude<T> {
     /// Converts a vector of value into a vector of `Magnitude`
     ///
     /// # Example
@@ -198,7 +198,7 @@ impl<T: Any> From<T> for Magnitude<T> {
     }
 }
 
-// implement comparison operators for Beyond
+// Implement comparison operators for Magnitude
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 
 impl<T: PartialEq> PartialEq for Magnitude<T> {
@@ -255,7 +255,7 @@ impl<T: Ord> Ord for Magnitude<T> {
     }
 }
 
-// implement arithmetic operators for Beyond
+// Implement arithmetic operators for Magnitude
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 impl<T: Add<Output = T>> Add for Magnitude<T> {
@@ -417,30 +417,30 @@ impl<T: Neg<Output = T>> Neg for Magnitude<T> {
     }
 }
 
-// implement auxiliary operators
+// Implement auxiliary operators
 use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
-impl<T: Add<Output = T> + Clone> AddAssign for Magnitude<T> {
+impl<T: Add<Output = T> + Copy> AddAssign for Magnitude<T> {
     fn add_assign(&mut self, rhs: Self) {
-        *self = self.clone() + rhs;
+        *self = *self + rhs;
     }
 }
 
-impl<T: Sub<Output = T> + Clone> SubAssign for Magnitude<T> {
+impl<T: Sub<Output = T> + Copy> SubAssign for Magnitude<T> {
     fn sub_assign(&mut self, rhs: Self) {
-        *self = self.clone() - rhs;
+        *self = *self - rhs;
     }
 }
 
-impl<T: Mul<Output = T> + Clone + PartialOrd + Zero> MulAssign for Magnitude<T> {
+impl<T: Mul<Output = T> + Copy + PartialOrd + Zero> MulAssign for Magnitude<T> {
     fn mul_assign(&mut self, rhs: Self) {
-        *self = self.clone() * rhs;
+        *self = *self * rhs;
     }
 }
 
-impl<T: Div<Output = T> + Clone + PartialOrd + Zero> DivAssign for Magnitude<T> {
+impl<T: Div<Output = T> + Copy + PartialOrd + Zero> DivAssign for Magnitude<T> {
     fn div_assign(&mut self, rhs: Self) {
-        *self = self.clone() / rhs;
+        *self = *self / rhs;
     }
 }
 
