@@ -72,6 +72,8 @@ assert!(neg_inf.is_neg_infinite());
 ```
 
 # Release
+* 0.3.2: Enforce `Copy` instead of `Clone`.
+* 0.3.1: Fixed is_finite() bug.
 * 0.3.0:
     * add `from_vec` to build a vector of `Magnitude` from a vector of values:
         ```rust
